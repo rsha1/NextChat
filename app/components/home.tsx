@@ -30,6 +30,11 @@ import { type ClientApi, getClientApi } from "../client/api";
 import { useAccessStore } from "../store";
 import clsx from "clsx";
 
+import EcoReport from "./components/eco-report";
+
+<Route path="/eco-report" element={<EcoReport />} />;
+
+
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={clsx("no-dark", styles["loading-content"])}>
