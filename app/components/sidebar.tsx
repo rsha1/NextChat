@@ -315,11 +315,25 @@ export function SideBar(props: { className?: string }) {
               <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
                 <IconButton
                   aria={Locale.Export.MessageFromChatGPT}
-                  icon={<GithubIcon />}
+                  icon={<DiscoveryIcon />}
                   shadow
                 />
+                
               </a>
             </div>
+
+                        <div className={styles["sidebar-action"]}>
+              <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+                <IconButton
+                icon={<DiscoveryIcon />} // Replace with an appropriate icon for ECO reports
+                text={shouldNarrow ? undefined : "ECO Reports"}
+                className={styles["sidebar-bar-button"]}
+                onClick={() => navigate("/eco-report")
+                />
+                
+              </a>
+            </div>
+            
           </>
         }
         secondaryAction={
