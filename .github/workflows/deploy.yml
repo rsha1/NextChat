@@ -22,7 +22,7 @@ jobs:
 
       - name: Deploy over SSH
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
             cd ~/NextChat
             git pull origin main
             docker stop nextchat || true
