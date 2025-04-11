@@ -16,22 +16,34 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          printf "%s\n" "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy over SSH
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          CODE: ${{ secrets.CODE }}
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
-            cd ~/NextChat
-            git pull origin main
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
+            echo "🔄 Pulling latest code..."
+            cd ~/NextChat && git pull origin main
+
+            echo "🛑 Stopping and removing old container..."
             docker stop nextchat || true
             docker rm nextchat || true
+
+            echo "🔨 Building new Docker image..."
             docker build -t nextchat-custom .
+
+            echo "🚀 Running new container..."
             docker run -d --name nextchat \
-              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-              -e GOOGLE_API_KEY=${{ secrets.GEMINI_API_KEY }} \
-              -e CODE=${{ secrets.CODE }} \
+              -e OPENAI_API_KEY=$OPENAI_API_KEY \
+              -e GOOGLE_API_KEY=$GOOGLE_API_KEY \
+              -e CODE=$CODE \
               -p 3000:3000 \
               nextchat-custom
+
+            echo "✅ Deployment finished!"
           EOF
