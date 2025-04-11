@@ -6,7 +6,7 @@
       git pull origin main
       docker stop nextchat || true
       docker rm nextchat || true
-      docker build -t nextchat-custom .
+      docker build --no-cache -t nextchat-custom .
       docker run -d --name nextchat \
         -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
         -e GOOGLE_API_KEY=${{ secrets.GEMINI_API_KEY }} \
