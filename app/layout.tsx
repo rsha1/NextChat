@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "ECOReport AI Chat",
   description: "ECOReport's AI chat service.",
   appleWebApp: {
-    title: "ECOReport AI Chat chat based on NextChat",
+    title: "ECOReport AI Chat chat based on NextChat!",
     statusBarStyle: "default",
   },
 };
