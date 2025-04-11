@@ -1,6 +1,6 @@
 - name: Deploy over SSH
   run: |
-    ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+    ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
       set -e
       cd ~/NextChat
       git pull origin main
@@ -8,9 +8,13 @@
       docker rm nextchat || true
       docker build --no-cache -t nextchat-custom .
       docker run -d --name nextchat \
-        -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-        -e GOOGLE_API_KEY=${{ secrets.GEMINI_API_KEY }} \
-        -e CODE=${{ secrets.CODE }} \
+        -e OPENAI_API_KEY="${OPENAI_API_KEY}" \
+        -e GOOGLE_API_KEY="${GOOGLE_API_KEY}" \
+        -e CODE="${CODE}" \
         -p 3000:3000 \
         nextchat-custom
     EOF
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    CODE: ${{ secrets.CODE }}
