@@ -23,27 +23,19 @@ jobs:
       - name: Deploy over SSH
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CODE: ${{ secrets.CODE }}
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
-            echo "🔄 Pulling latest code..."
-            cd ~/NextChat && git pull origin main
-
-            echo "🛑 Stopping and removing old container..."
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+            cd ~/NextChat
+            git pull origin main
             docker stop nextchat || true
             docker rm nextchat || true
-
-            echo "🔨 Building new Docker image..."
             docker build -t nextchat-custom .
-
-            echo "🚀 Running new container..."
             docker run -d --name nextchat \
-              -e OPENAI_API_KEY=$OPENAI_API_KEY \
-              -e GOOGLE_API_KEY=$GOOGLE_API_KEY \
-              -e CODE=$CODE \
+              -e OPENAI_API_KEY="$OPENAI_API_KEY" \
+              -e GOOGLE_API_KEY="$GOOGLE_API_KEY" \
+              -e CODE="$CODE" \
               -p 3000:3000 \
               nextchat-custom
-
-            echo "✅ Deployment finished!"
           EOF
