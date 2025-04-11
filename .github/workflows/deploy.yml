@@ -10,17 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup SSH
+      - name: Setup SSH and Deploy
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Run Deploy Script on GCP
-        run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-          "bash ~/deploy-nextchat.sh '${{ secrets.OPENAI_API_KEY }}' '${{ secrets.GEMINI_API_KEY }}' '${{ secrets.CODE }}'"
+            "bash ~/deploy-nextchat.sh '${{ secrets.OPENAI_API_KEY }}' '${{ secrets.GEMINI_API_KEY }}' '${{ secrets.CODE }}'"
