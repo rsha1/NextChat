@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Setup SSH
@@ -20,7 +20,20 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Run Deployment Script on GCP
+      - name: Deploy over SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-          "bash ~/deploy-nextchat.sh '${{ secrets.OPENAI_API_KEY }}' '${{ secrets.GEMINI_API_KEY }}' '${{ secrets.CODE }}'"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+            cd ~/NextChat
+            git pull origin main
+            docker stop nextchat || true
+            docker rm nextchat || true
+            docker build --no-cache -t nextchat-custom .
+            docker run -d --name nextchat \
+              -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+              -e GOOGLE_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
+              -e CODE="${{ secrets.CODE }}" \
+              -p 3000:3000 \
+              nextchat-custom
+            sudo systemctl restart nginx
+          EOF
