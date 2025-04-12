@@ -1,39 +1,25 @@
-name: Deploy to GCP Server
+- name: Deploy over SSH
+  run: |
+    ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+      set -e
+      cd ~/NextChat
+      git pull origin main
 
-on:
-  push:
-    branches:
-      - main
+      echo "🧹 Cleaning up old container..."
+      docker stop nextchat || true
+      docker rm nextchat || true
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      echo "🐳 Building Docker image..."
+      docker build --no-cache -t nextchat-custom .
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      echo "🚀 Running container..."
+      docker run -d --name nextchat \
+        -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+        -e GOOGLE_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
+        -e CODE="${{ secrets.CODE }}" \
+        -p 3000:3000 \
+        nextchat-custom
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy over SSH
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            set -e
-            cd ~/NextChat
-            git pull origin main
-            docker stop nextchat || true
-            docker rm nextchat || true
-            docker build --no-cache -t nextchat-custom .
-            docker run -d --name nextchat \
-              -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
-              -e GOOGLE_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
-              -e CODE="${{ secrets.CODE }}" \
-              -p 3000:3000 \
-              nextchat-custom
-            sudo systemctl restart nginx
-          EOF
+      echo "🔁 Restarting nginx..."
+      sudo systemctl restart nginx
+    EOF
