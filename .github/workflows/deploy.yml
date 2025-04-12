@@ -1,25 +1,4 @@
 - name: Deploy over SSH
   run: |
-    ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-      set -e
-      cd ~/NextChat
-      git pull origin main
-
-      echo "🧹 Cleaning up old container..."
-      docker stop nextchat || true
-      docker rm nextchat || true
-
-      echo "🐳 Building Docker image..."
-      docker build --no-cache -t nextchat-custom .
-
-      echo "🚀 Running container..."
-      docker run -d --name nextchat \
-        -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
-        -e GOOGLE_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
-        -e CODE="${{ secrets.CODE }}" \
-        -p 3000:3000 \
-        nextchat-custom
-
-      echo "🔁 Restarting nginx..."
-      sudo systemctl restart nginx
-    EOF
+    ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+    "bash ~/deploy-nextchat.sh '${{ secrets.OPENAI_API_KEY }}' '${{ secrets.GEMINI_API_KEY }}' '${{ secrets.CODE }}'"
