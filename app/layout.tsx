@@ -9,8 +9,8 @@ import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import { getServerSideConfig } from "./config/server";
 
 export const metadata: Metadata = {
-  title: "ECOReport AI Chat",
-  description: "ECOReport's AI chat service.",
+  title: "ECO Report AI Chat",
+  description: "ECO Report's AI chat service.",
   appleWebApp: {
     title: "ECOReport AI Chat chat based on NextChat!!!",
     statusBarStyle: "default",
