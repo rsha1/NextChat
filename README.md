@@ -166,6 +166,20 @@ code1,code2,code3
 
 After adding or modifying this environment variable, please redeploy the project for the changes to take effect.
 
+## User Accounts
+
+This project now supports email/password accounts and Google OAuth using **NextAuth.js**.
+
+Set the following environment variables:
+
+```
+NEXTAUTH_SECRET=your_random_string
+GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_secret
+```
+
+Visit `/signup` to create an account, then `/login` to sign in. Each user has a role of `Admin`, `ECO`, or `Client`, which controls access to protected routes like `/admin`.
+
 ## Environment Variables
 
 ### `CODE` (optional)
